@@ -318,7 +318,7 @@
             if (totalDecks === 0) {
                 dom.emptyMessage.classList.remove('hidden');
                 if(viewMode === 'details') {
-                    dom.detailsTitle.textContent = 'デッキ詳細';
+                    dom.detailsTitle.textContent = 'デッキ';
                 }
             } else {
                 dom.emptyMessage.classList.add('hidden');
@@ -586,6 +586,27 @@
             const imageUrl = dom.imageUrlInput.value.trim();
             
             if (!name || !cls || !date) { alert('必須項目を入力してください'); return; }
+
+            const data = loadData();
+            const targetDecks = data[cls] || [];
+            let isDuplicate = false;
+
+            if (currentEdit) {
+                const currentIdx = parseInt(currentEdit.index);
+                if (currentEdit.cls === cls) {
+                    isDuplicate = targetDecks.some((d, i) => d.name === name && i !== currentIdx);
+                } else {
+                    isDuplicate = targetDecks.some(d => d.name === name);
+                }
+            } else {
+                isDuplicate = targetDecks.some(d => d.name === name);
+            }
+
+            if (isDuplicate) {
+                alert(`「${name}」は既に登録されています。\n同名のデッキは登録できません。`);
+                return;
+            }
+            
             if (!selectedFile && !imageUrl && !currentEdit) { alert('画像を選択またはURLを入力してください'); return; }
             
             dom.submitBtn.textContent = '処理中...';
