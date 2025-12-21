@@ -37,6 +37,16 @@
 			background-color: #f3f4f6;
 			border: 2px dashed #9ca3af;
 		}
+
+		/* スクロールバー非表示 */
+		.no-scrollbar::-webkit-scrollbar {
+			display: none;
+		}
+
+		.no-scrollbar {
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
 	</style>
 </head>
 
@@ -69,7 +79,7 @@
 			</div>
 
 			<!-- リストエリア: 動的に生成されます -->
-			<div id="sidebarListContainer" class="flex-grow overflow-y-auto pr-2 space-y-6">
+			<div id="sidebarListContainer" class="flex-grow overflow-y-auto pr-2 space-y-6 no-scrollbar">
 				<!-- JSでクラスごとのリストがここに挿入されます -->
 			</div>
 
@@ -85,12 +95,12 @@
 
 				<!-- 1. 詳細表示ヘッダー -->
 				<div id="detailsHeader"
-					class="flex items-center justify-between mb-2 pb-4 border-b border-gray-100 flex-shrink-0">
-					<h3 class="text-3xl font-extrabold text-gray-900 tracking-tight" id="detailsTitle">デッキ詳細</h3>
+					class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 flex-shrink-0 min-h-[72px]">
+					<h3 class="text-2xl font-bold text-gray-900 tracking-tight" id="detailsTitle">デッキ詳細</h3>
 					<div class="actions flex space-x-3" id="detailActions" style="display: none;">
 						<button id="editBtn"
 							class="p-2.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition"
-							title="修正">
+							title="編集">
 							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
 								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 								stroke-linejoin="round">
@@ -114,15 +124,13 @@
 						</button>
 					</div>
 					<!-- 設定画面用アクション -->
-					<!-- 設定画面用アクション -->
-					<!-- 設定画面用アクション -->
 					<div class="actions flex items-center space-x-3" id="settingsActions" style="display: none;">
 						<input type="file" id="restoreInput" accept=".json" class="hidden">
 
 						<div class="flex bg-gray-100 rounded-lg p-1 mr-2">
 							<button id="resetDataBtn"
 								class="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-md transition"
-								title="データを初期化（全削除）">
+								title="データ全削除">
 								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
 									fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									stroke-linejoin="round">
@@ -135,7 +143,7 @@
 							<div class="w-px bg-gray-300 mx-1 my-1"></div>
 							<button id="backupBtn"
 								class="p-2 text-gray-500 hover:text-blue-600 hover:bg-white rounded-md transition"
-								title="バックアップ作成（保存）">
+								title="バックアップ作成">
 								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
 									fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									stroke-linejoin="round">
@@ -146,7 +154,7 @@
 							</button>
 							<button id="restoreBtn"
 								class="p-2 text-gray-500 hover:text-green-600 hover:bg-white rounded-md transition"
-								title="バックアップ復元（読み込み）">
+								title="バックアップ復元">
 								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
 									fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									stroke-linejoin="round">
@@ -158,8 +166,7 @@
 						</div>
 
 						<button id="closeSettingsBtn"
-							class="text-red-500 hover:text-red-700 hover:scale-110 transition rounded-full"
-							title="設定を閉じる">
+							class="text-red-500 hover:text-red-700 hover:scale-110 transition rounded-full" title="閉じる">
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 								fill="currentColor" stroke="none">
 								<path
@@ -187,15 +194,15 @@
 
 				<!-- 3. 登録・編集フォーム -->
 				<div id="formContainer" class="hidden h-full overflow-y-auto pr-2 px-2 custom-scrollbar">
-					<form id="deckForm" class="space-y-6 pb-6">
-						<div class="grid grid-cols-2 gap-4">
+					<form id="deckForm" class="space-y-3 pb-4">
+						<div class="grid grid-cols-2 gap-3">
 							<div>
 								<label for="classSelect"
 									class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">クラス名
 									<span class="text-red-500">*</span></label>
 								<!-- JSで動的にoptionが生成されます -->
 								<select id="classSelect" required
-									class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white">
+									class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white text-sm">
 									<option value="" selected>-</option>
 								</select>
 							</div>
@@ -204,7 +211,7 @@
 									class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">登録日
 									<span class="text-red-500">*</span></label>
 								<input type="text" id="dateInput" required
-									class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white">
+									class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white text-sm">
 							</div>
 						</div>
 
@@ -213,26 +220,26 @@
 								class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">デッキ名 <span
 									class="text-red-500">*</span></label>
 							<input type="text" id="nameInput" required placeholder="例：ランプD"
-								class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white">
+								class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white text-sm">
 						</div>
 
 						<div>
 							<label for="linkInput"
 								class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">リンク</label>
 							<input type="text" id="linkInput" placeholder="デッキポータルやYouTubeのリンクなど"
-								class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white">
+								class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white text-sm">
 						</div>
 
 						<div>
 							<label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">画像 <span
 									class="text-red-500">*</span></label>
 							<div id="dropZone"
-								class="border-2 border-dashed border-gray-300 rounded-lg h-64 relative bg-gray-50 transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 group">
+								class="border-2 border-dashed border-gray-300 rounded-lg h-40 relative bg-gray-50 transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 group">
 								<div id="inputArea"
 									class="absolute inset-0 flex flex-col justify-center px-8 z-10 transition-opacity duration-200">
-									<div class="space-y-4">
+									<div class="space-y-2">
 										<div><input type="text" id="imageUrlInput" placeholder="画像リンクを入力..."
-												class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white">
+												class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition font-medium bg-gray-50 focus:bg-white text-xs">
 										</div>
 										<div class="flex justify-start">
 											<button type="button" id="selectFileBtn"
@@ -254,7 +261,7 @@
 									class="hidden relative w-full h-full flex items-center justify-center p-4 z-20">
 									<div class="relative inline-block">
 										<img id="preview"
-											class="max-h-[350px] w-auto max-w-full rounded-md shadow-md border border-gray-200 object-contain">
+											class="max-h-full w-auto max-w-full rounded-md shadow-md border border-gray-200 object-contain">
 										<button id="clearPreviewBtn" type="button"
 											class="absolute -top-3 -right-3 bg-red-600 text-white p-1.5 rounded-full shadow-lg hover:bg-red-700 transition transform hover:scale-110 z-30"
 											title="画像を削除"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -269,7 +276,7 @@
 							</div>
 						</div>
 
-						<div class="pt-4">
+						<div class="pt-2">
 							<button type="submit" id="submitBtn"
 								class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition shadow-md">登録する</button>
 						</div>
@@ -278,10 +285,6 @@
 
 				<!-- 4. クラス設定画面 -->
 				<div id="settingsContainer" class="hidden h-full overflow-hidden flex flex-col">
-					<div class="mb-4 text-sm text-gray-500">
-						サイドバーのタブの編集・並び替え・削除<br>
-						<span class="text-red-500 font-bold">※選択肢を削除すると、そのクラスの登録済みデッキも全て破棄されます。</span>
-					</div>
 
 					<div class="flex-grow overflow-y-auto pr-2 mb-4 border border-gray-200 rounded-lg">
 						<ul id="settingsList" class="divide-y divide-gray-100">
@@ -304,6 +307,22 @@
 					</div>
 				</div>
 
+			</div>
+		</div>
+	</div>
+
+	<!-- カスタムモーダル -->
+	<div id="customModal"
+		class="fixed inset-0 z-50 hidden flex items-center justify-center bg-gray-900 bg-opacity-50 transition-opacity opacity-0">
+		<div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 transform transition-all scale-95"
+			id="modalContent">
+			<div class="p-8">
+				<h3 class="text-lg font-bold text-gray-900 mb-2 text-center" id="modalTitle">確認</h3>
+				<p class="text-sm text-gray-500 whitespace-pre-wrap text-center" id="modalMessage">メッセージ</p>
+			</div>
+			<div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg gap-2 justify-center"
+				id="modalActions">
+				<!-- JSでボタンを注入 -->
 			</div>
 		</div>
 	</div>
@@ -371,6 +390,79 @@
 		let currentEdit = null;
 		let viewMode = 'details';
 		let selectedFile = null;
+
+		// --- カスタムモーダルロジック ---
+		const modalDom = {
+			container: document.getElementById('customModal'),
+			content: document.getElementById('modalContent'),
+			title: document.getElementById('modalTitle'),
+			message: document.getElementById('modalMessage'),
+			actions: document.getElementById('modalActions')
+		};
+
+		function showModal({ title, message, type = 'info', confirmText = 'OK', cancelText = 'キャンセル' }) {
+			return new Promise((resolve) => {
+				modalDom.title.textContent = title;
+				modalDom.message.textContent = message;
+				modalDom.actions.innerHTML = '';
+
+				// 中央揃えスタイル適用
+				modalDom.title.className = `text-xl font-bold mb-4 text-center ${type === 'danger' ? 'text-red-600' : 'text-gray-900'}`;
+				modalDom.message.className = 'text-base text-gray-500 whitespace-pre-wrap text-center block w-full';
+				modalDom.actions.className = 'bg-gray-50 px-4 py-4 sm:px-6 flex flex-col sm:flex-row-reverse justify-center gap-3 rounded-b-lg';
+
+				const confirmBtn = document.createElement('button');
+				// w-32 (128px) で統一
+				confirmBtn.className = `w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:w-32 ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`;
+				confirmBtn.textContent = confirmText;
+				confirmBtn.onclick = () => close(true);
+
+				modalDom.actions.appendChild(confirmBtn);
+
+				if (type === 'confirm' || type === 'danger') {
+					const cancelBtn = document.createElement('button');
+					// w-32 で統一
+					cancelBtn.className = "mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-32";
+					cancelBtn.textContent = cancelText;
+					cancelBtn.onclick = () => close(false);
+					modalDom.actions.appendChild(cancelBtn);
+				}
+
+				modalDom.container.classList.remove('hidden');
+				setTimeout(() => {
+					modalDom.container.classList.remove('opacity-0');
+					modalDom.content.classList.remove('scale-95');
+					modalDom.content.classList.add('scale-100');
+				}, 10);
+
+				confirmBtn.focus();
+
+				function close(result) {
+					modalDom.container.classList.add('opacity-0');
+					modalDom.content.classList.remove('scale-100');
+					modalDom.content.classList.add('scale-95');
+					setTimeout(() => {
+						modalDom.container.classList.add('hidden');
+						resolve(result);
+					}, 200);
+				}
+
+				modalDom.container.onclick = (e) => {
+					if (e.target === modalDom.container) {
+						if (type === 'confirm' || type === 'danger') close(false);
+						else close(true);
+					}
+				};
+			});
+		}
+
+		async function showAlert(message = "", title = '') {
+			await showModal({ title, message, type: 'info' });
+		}
+
+		async function showConfirm(message, title = '確認', type = 'confirm') {
+			return await showModal({ title, message, type });
+		}
 
 		// --- 初期化 & データロード ---
 
@@ -494,7 +586,7 @@
 				dom.detailContent.classList.remove('hidden');
 			} else if (mode === 'form') {
 				dom.detailsHeader.style.display = 'flex';
-				dom.detailsTitle.textContent = currentEdit ? 'デッキ内容の修正' : '新規デッキ登録';
+				dom.detailsTitle.textContent = currentEdit ? 'デッキ登録' : 'デッキ登録';
 				dom.detailActions.style.display = 'none';
 				dom.formContainer.classList.remove('hidden');
 				dom.toggleFormBtn.disabled = true;
@@ -577,8 +669,9 @@
 				});
 
 				const delBtn = li.querySelector('.delete-class-btn');
-				delBtn.addEventListener('click', () => {
-					if (confirm(`「${c.name}」を削除しますか？\n\n【重要】\nこのクラスに登録されているデッキ情報が全て削除されます。\nこの操作は取り消せません。`)) {
+				delBtn.addEventListener('click', async () => {
+					const result = await showConfirm(`このクラスに登録されたデッキも全て削除されます。\n本当に削除しますか？`, '削除確認', 'danger');
+					if (result) {
 						const data = loadData();
 						if (data[c.id]) {
 							delete data[c.id];
@@ -726,7 +819,7 @@
 			const date = dom.dateInput.value.trim();
 			const imageUrl = dom.imageUrlInput.value.trim();
 
-			if (!name || !cls || !date) { alert('必須項目を入力してください'); return; }
+			if (!name || !cls || !date) { await showAlert('必須項目を入力してください', '入力エラー'); return; }
 
 			const data = loadData();
 			const targetDecks = data[cls] || [];
@@ -744,11 +837,11 @@
 			}
 
 			if (isDuplicate) {
-				alert(`「${name}」は既に登録されています。\n同名のデッキは登録できません。`);
+				await showAlert(`「${name}」は既に登録されています。\n同名のデッキは登録できません。`, '登録エラー');
 				return;
 			}
 
-			if (!selectedFile && !imageUrl && !currentEdit) { alert('画像を選択またはURLを入力してください'); return; }
+			if (!selectedFile && !imageUrl && !currentEdit) { await showAlert('画像を設定してください。', '入力エラー'); return; }
 
 			dom.submitBtn.textContent = '処理中...';
 			dom.submitBtn.disabled = true;
@@ -764,13 +857,13 @@
 				}
 				handleSubmit(imageBase64, name, cls, link, date);
 			} catch (error) {
-				alert('画像の処理に失敗しました: ' + error.message);
+				await showAlert('画像の処理に失敗しました: ' + error.message, 'エラー');
 			} finally {
 				dom.submitBtn.disabled = false;
 			}
 		});
 
-		function handleSubmit(imageBase64, name, cls, link, date) {
+		async function handleSubmit(imageBase64, name, cls, link, date) {
 			const data = loadData();
 			let targetCls = cls;
 			let targetIndex;
@@ -780,7 +873,7 @@
 				const index = currentEdit.index;
 
 				if (!data[oldCls]) {
-					alert("元のクラスデータが存在しません。新規登録として扱います。");
+					await showAlert("元のクラスデータが存在しません。新規登録として扱います。", 'エラー');
 					currentEdit = null;
 					return handleSubmit(imageBase64, name, cls, link, date);
 				}
@@ -801,7 +894,7 @@
 				}
 				currentEdit = null;
 			} else {
-				if (!imageBase64) { alert("画像が必要です"); return; }
+				if (!imageBase64) { await showAlert("画像が必要です", 'エラー'); return; }
 				if (!data[cls]) data[cls] = [];
 				data[cls].push({ name, image: imageBase64, class: cls, link, date, memo: '' });
 				targetIndex = data[cls].length - 1;
@@ -819,10 +912,10 @@
 			}, 100);
 		}
 
-		dom.editBtn.addEventListener('click', () => {
+		dom.editBtn.addEventListener('click', async () => {
 			if (!currentEdit) return;
 			const data = loadData();
-			if (!data[currentEdit.cls]) { alert("このデッキのクラスデータが見つかりません"); return; }
+			if (!data[currentEdit.cls]) { await showAlert("このデッキのクラスデータが見つかりません", 'エラー'); return; }
 			const deck = data[currentEdit.cls][currentEdit.index];
 
 			dom.nameInput.value = deck.name;
@@ -838,8 +931,11 @@
 			switchView('form');
 		});
 
-		dom.deleteBtn.addEventListener('click', () => {
-			if (!currentEdit || !confirm('本当にこのデッキを削除しますか？')) return;
+		dom.deleteBtn.addEventListener('click', async () => {
+			if (!currentEdit) return;
+			const result = await showConfirm('本当にこのデッキを削除しますか？', '削除確認', 'danger');
+			if (!result) return;
+
 			const data = loadData();
 			data[currentEdit.cls].splice(currentEdit.index, 1);
 			saveData(data);
@@ -924,7 +1020,7 @@
 					const resized = await resizeBase64(base64);
 					showPreview(resized);
 					selectedFile = null;
-				} catch (error) { alert('URL画像の読み込みに失敗しました'); dom.imageUrlInput.value = ''; }
+				} catch (error) { await showAlert('URL画像の読み込みに失敗しました', 'エラー'); dom.imageUrlInput.value = ''; }
 			}
 		});
 
@@ -936,7 +1032,7 @@
 				const resized = await resizeBase64(base64);
 				showPreview(resized);
 				dom.imageUrlInput.value = '';
-			} catch (e) { alert("画像の読み込みに失敗しました"); }
+			} catch (e) { await showAlert("画像の読み込みに失敗しました", 'エラー'); }
 		}
 		function showPreview(src) {
 			dom.preview.src = src;
@@ -977,7 +1073,7 @@
 			const dd = String(now.getDate()).padStart(2, '0');
 
 			a.href = url;
-			a.download = `deck_backup_${yyyy}${mm}${dd}.json`;
+			a.download = `backup_${yyyy}${mm}${dd}.json`;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
@@ -985,7 +1081,6 @@
 		});
 
 		dom.restoreBtn.addEventListener('click', () => {
-			if (!confirm('バックアップファイルからデータを復元します。\n\n【重要】\n現在のデータは全て上書きされ、失われます。\nよろしいですか？')) return;
 			dom.restoreInput.click();
 		});
 
@@ -994,7 +1089,7 @@
 			if (!file) return;
 
 			const reader = new FileReader();
-			reader.onload = (event) => {
+			reader.onload = async (event) => {
 				try {
 					const data = JSON.parse(event.target.result);
 					// 簡易バリデーション
@@ -1003,10 +1098,10 @@
 					}
 					localStorage.setItem(configKey, JSON.stringify(data.classConfig));
 					localStorage.setItem(storageKey, JSON.stringify(data.deckData));
-					alert('復元が完了しました。画面を更新します。');
+					await showAlert('復元が完了しました。画面を更新します。');
 					location.reload();
 				} catch (err) {
-					alert('復元に失敗しました: ' + err.message);
+					await showAlert('復元に失敗しました: ' + err.message, 'エラー');
 				} finally {
 					dom.restoreInput.value = '';
 				}
@@ -1014,14 +1109,15 @@
 			reader.readAsText(file);
 		});
 
-		dom.resetDataBtn.addEventListener('click', () => {
-			if (!confirm('【警告】\n全ての登録データを削除します。\nクラス設定・デッキ情報が全て消え、初期状態に戻ります。\n\n本当に実行しますか？')) return;
+		dom.resetDataBtn.addEventListener('click', async () => {
+			const result = await showConfirm('登録データを全て削除します。\n本当に実行しますか？', '【警告】', 'danger');
+			if (!result) return;
 
 			localStorage.removeItem(storageKey);
 			localStorage.removeItem(configKey); // 初期化のためconfigも消す
 			localStorage.removeItem(viewKey);
 
-			alert('データを全て削除しました。画面を更新します。');
+			await showAlert('データを全て削除しました。');
 			location.reload();
 		});
 
@@ -1042,6 +1138,13 @@
 				}, 100);
 			} else {
 				localStorage.removeItem(viewKey);
+			}
+		} else {
+			// データが無い場合は登録フォームを表示
+			const data = loadData();
+			const totalDecks = Object.values(data).reduce((acc, curr) => acc + curr.length, 0);
+			if (totalDecks === 0) {
+				switchView('form');
 			}
 		}
 	</script>
