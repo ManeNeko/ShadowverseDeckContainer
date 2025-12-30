@@ -53,7 +53,7 @@
 <body class="font-sans antialiased bg-gray-50 text-gray-900 overflow-hidden h-screen w-screen">
 	<div class="flex h-full">
 		<!-- 左側サイドバー -->
-		<div class="w-1/4 border-r border-gray-200 p-6 flex flex-col bg-white h-full">
+		<div class="w-1/5 border-r border-gray-200 p-6 flex flex-col bg-white h-full">
 			<div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 flex-shrink-0">
 				<h2 class="text-xl font-bold text-gray-800">デッキ一覧</h2>
 				<div class="flex items-center gap-2">
@@ -89,7 +89,7 @@
 		</div>
 
 		<!-- 右側メインエリア -->
-		<div class="w-3/4 p-6 bg-gray-100 h-full overflow-hidden flex flex-col justify-center">
+		<div class="w-4/5 p-6 bg-gray-100 h-full overflow-hidden flex flex-col justify-center">
 			<div
 				class="details bg-white p-8 rounded-xl shadow-lg h-full border border-gray-100 flex flex-col overflow-hidden">
 
@@ -177,19 +177,35 @@
 				</div>
 
 				<!-- 2. 詳細表示コンテンツ -->
-				<div id="detailContent" class="flex-grow flex flex-col overflow-hidden hidden pb-2">
-					<div id="detailDate" class="mb-2 text-sm text-gray-500 font-medium flex-shrink-0"></div>
-					<div
-						class="flex-grow min-h-0 mb-4 bg-gray-100 rounded-lg p-2 flex items-center justify-center overflow-hidden">
-						<div id="detailImage" class="w-full h-full flex items-center justify-center"></div>
+				<div id="detailContent" class="flex-grow flex flex-row overflow-hidden hidden pb-2 gap-4">
+					<div class="flex flex-col flex-grow min-w-0">
+						<div id="detailDate" class="mb-2 text-sm text-gray-500 font-medium flex-shrink-0"></div>
+						<div
+							class="flex-grow min-h-0 bg-gray-100 rounded-lg p-2 flex items-center justify-center overflow-hidden relative"
+							id="detailImageContainer">
+							<div id="detailImage" class="w-full h-full flex items-center justify-center"></div>
+							<!-- ナビゲーション矢印 -->
+							<button id="prevDeckBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-60 hover:bg-opacity-90 text-white w-10 h-10 rounded-full flex items-center justify-center transition hidden z-10"
+								title="前のデッキ">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="15 18 9 12 15 6"></polyline>
+								</svg>
+							</button>
+							<button id="nextDeckBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-60 hover:bg-opacity-90 text-white w-10 h-10 rounded-full flex items-center justify-center transition hidden z-10"
+								title="次のデッキ">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="9 18 15 12 9 6"></polyline>
+								</svg>
+							</button>
+						</div>
+						<div id="detailLink" class="text-right mt-2 flex-shrink-0"></div>
 					</div>
-					<div class="mb-2 flex-shrink-0">
+					<div class="w-96 flex flex-col flex-shrink-0">
 						<label for="detailMemo" class="block text-sm font-bold text-gray-700 mb-1">メモ</label>
 						<textarea id="detailMemo"
-							class="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none overflow-y-auto focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none transition text-sm leading-relaxed"
+							class="flex-grow p-3 border border-gray-300 rounded-lg resize-none overflow-y-auto focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none transition text-base leading-relaxed"
 							placeholder="マリガンや対策など"></textarea>
 					</div>
-					<div id="detailLink" class="text-right mt-1 flex-shrink-0"></div>
 				</div>
 
 				<!-- 3. 登録・編集フォーム -->
@@ -373,7 +389,10 @@
 			restoreBtn: document.getElementById('restoreBtn'),
 			resetDataBtn: document.getElementById('resetDataBtn'),
 			closeSettingsBtn: document.getElementById('closeSettingsBtn'),
-			restoreInput: document.getElementById('restoreInput')
+			restoreInput: document.getElementById('restoreInput'),
+			detailImageContainer: document.getElementById('detailImageContainer'),
+			prevDeckBtn: document.getElementById('prevDeckBtn'),
+			nextDeckBtn: document.getElementById('nextDeckBtn')
 		};
 
 		const defaultClasses = [
@@ -601,6 +620,135 @@
 			}
 		}
 
+		// --- デッキナビゲーション機能 ---
+		
+		/**
+		 * すべてのデッキをフラット化したリストを取得する
+		 * @returns {Array} [{ cls, index, name }, ...]
+		 */
+		function getAllDecksList() {
+			const data = loadData();
+			const allDecks = [];
+
+			classConfig.forEach(c => {
+				const decks = data[c.id] || [];
+				decks.forEach((deck, index) => {
+					allDecks.push({ cls: c.id, index, name: deck.name });
+				});
+			});
+
+			return allDecks;
+		}
+
+		/**
+		 * 現在表示中のデッキの前後のデッキ情報を取得する
+		 * クラス間遷移に対応し、ループする
+		 * @returns {Object} {prevDeck, nextDeck, hasPrev, hasNext}
+		 */
+		function getAdjacentDecks() {
+			if (!currentEdit) {
+				return { prevDeck: null, nextDeck: null, hasPrev: true, hasNext: true };
+			}
+
+			const allDecks = getAllDecksList();
+			if (allDecks.length === 0) {
+				return { prevDeck: null, nextDeck: null, hasPrev: false, hasNext: false };
+			}
+
+			// 現在のデッキを見つける
+			const currentIdx = allDecks.findIndex(d => d.cls === currentEdit.cls && d.index === parseInt(currentEdit.index));
+
+			if (currentIdx === -1) {
+				return { prevDeck: null, nextDeck: null, hasPrev: false, hasNext: false };
+			}
+
+			// ループ対応：前後を計算
+			const prevIdx = currentIdx > 0 ? currentIdx - 1 : allDecks.length - 1;
+			const nextIdx = currentIdx < allDecks.length - 1 ? currentIdx + 1 : 0;
+
+			const prevDeck = allDecks[prevIdx];
+			const nextDeck = allDecks[nextIdx];
+
+			return { prevDeck, nextDeck, hasPrev: true, hasNext: true };
+		}
+
+		/**
+		 * 矢印ボタンの表示・非表示を更新する
+		 */
+		function updateNavigationButtons() {
+			const { hasPrev, hasNext } = getAdjacentDecks();
+			
+			if (hasPrev) {
+				dom.prevDeckBtn.classList.remove('hidden');
+			} else {
+				dom.prevDeckBtn.classList.add('hidden');
+			}
+
+			if (hasNext) {
+				dom.nextDeckBtn.classList.remove('hidden');
+			} else {
+				dom.nextDeckBtn.classList.add('hidden');
+			}
+		}
+
+		/**
+		 * 指定したデッキに遷移する
+		 * @param {Object} deckRef - {cls, index}
+		 */
+		function navigateToDeck(deckRef) {
+			if (!deckRef) return;
+
+			const li = document.querySelector(`li[data-cls="${deckRef.cls}"][data-index="${deckRef.index}"]`);
+			if (li) {
+				li.click();
+			}
+		}
+
+		/**
+		 * 前のデッキに遷移する
+		 */
+		function goToPrevDeck() {
+			const { prevDeck } = getAdjacentDecks();
+			navigateToDeck(prevDeck);
+		}
+
+		/**
+		 * 次のデッキに遷移する
+		 */
+		function goToNextDeck() {
+			const { nextDeck } = getAdjacentDecks();
+			navigateToDeck(nextDeck);
+		}
+
+		/**
+		 * 画像コンテナのマウスホイールイベントを処理
+		 */
+		function handleImageContainerWheel(e) {
+			if (viewMode !== 'details' || !currentEdit) return;
+
+			e.preventDefault();
+
+			// deltaY > 0 = 下にスクロール（次へ）
+			// deltaY < 0 = 上にスクロール（前へ）
+			if (e.deltaY > 0) {
+				goToNextDeck();
+			} else if (e.deltaY < 0) {
+				goToPrevDeck();
+			}
+		}
+
+		/**
+		 * ナビゲーション機能を初期化する
+		 */
+		function initializeDeckNavigation() {
+			// 矢印ボタンのクリックイベント
+			dom.prevDeckBtn.addEventListener('click', goToPrevDeck);
+			dom.nextDeckBtn.addEventListener('click', goToNextDeck);
+
+			// 画像コンテナのマウスホイールイベント
+			dom.detailImageContainer.addEventListener('wheel', handleImageContainerWheel, { passive: false });
+		}
+
 		// --- 詳細表示 ---
 
 		function showDetails(e) {
@@ -625,12 +773,13 @@
 			dom.detailsTitle.textContent = deck.name;
 			dom.detailDate.innerHTML = `登録日: ${deck.date}`;
 			dom.detailImage.innerHTML = deck.image ? `<img src="${deck.image}" class="max-w-full max-h-full object-contain shadow-md rounded-md">` : '<span class="text-gray-400">画像なし</span>';
-			dom.detailLink.innerHTML = deck.link ? `<a href="${deck.link}" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline font-medium gap-1"><span>外部リンクを開く</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>` : '';
+			dom.detailLink.innerHTML = deck.link ? `<a href="${deck.link}" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline font-medium gap-1"><span>リンクを開く</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>` : '';
 			dom.detailMemo.value = deck.memo || '';
 			dom.detailActions.style.display = 'flex';
 
 			currentEdit = { cls, index };
 			localStorage.setItem(viewKey, JSON.stringify(currentEdit));
+			updateNavigationButtons();
 		}
 
 		// --- 設定画面 ---
@@ -1126,6 +1275,7 @@
 		renderSidebar();
 		updateFormSelect();
 		setDefaultDate();
+		initializeDeckNavigation();
 
 		currentEdit = JSON.parse(localStorage.getItem(viewKey)) || null;
 		if (currentEdit) {
